@@ -1,0 +1,57 @@
+stages:
+  - build
+  - release
+
+deploy_docker:
+  stage: build
+  before_script:
+    - docker pull dockerhub.uns.ac.id:5000/sppd:builder || true
+    - docker pull dockerhub.uns.ac.id:5000/sppd:latest || true
+    - docker pull dockerhub.uns.ac.id:5000/php81:base || true
+  script:
+    - curl -o .env http://localhost:8500/v1/kv/sppd/env?raw
+    - cp -Rf ~/ssh-docker74 ./.ssh
+    - docker build --target builder --tag dockerhub.uns.ac.id:5000/sppd:builder .
+    - docker build --cache-from dockerhub.uns.ac.id:5000/sppd:builder --cache-from dockerhub.uns.ac.id:5000/sppd:latest --tag dockerhub.uns.ac.id:5000/sppd:$CI_COMMIT_SHORT_SHA .
+  after_script:
+    - docker push dockerhub.uns.ac.id:5000/sppd:builder
+    - docker push dockerhub.uns.ac.id:5000/sppd:$CI_COMMIT_SHORT_SHA
+  environment:
+    name: production
+  only:
+    - main
+  tags:
+    - docker
+
+
+release_production:
+  stage: release
+  script:
+    - docker image tag dockerhub.uns.ac.id:5000/sppd:$CI_COMMIT_SHORT_SHA dockerhub.uns.ac.id:5000/sppd:latest
+    - docker push dockerhub.uns.ac.id:5000/sppd:latest
+    - curl -o kubectl.cfg  http://localhost:8500/v1/kv/cluster/kubeconfig?raw
+    - curl -o env-production  http://localhost:8500/v1/kv/sppd/env-production?raw
+    - kubectl --kubeconfig kubectl.cfg apply -f deploy/k8s/namespace.yaml
+    - kubectl --namespace sppd --kubeconfig kubectl.cfg  create configmap sppd-web --from-file env-production --dry-run -o yaml | kubectl --kubeconfig kubectl.cfg apply -f -
+    - sed -i -e 's/sppd:latest/sppd:'$CI_COMMIT_SHORT_SHA'/g' deploy/k8s/sppd.yaml
+    - kubectl --kubeconfig kubectl.cfg apply -f deploy/k8s/sppd.yaml
+  when: manual
+  only:
+    - main
+  tags:
+    - docker
+
+migration-prod:
+  stage: release
+  before_script:
+    - docker pull dockerhub.uns.ac.id:5000/sppd:$CI_COMMIT_SHORT_SHA  || true
+    - docker rm -f migration-sppd || true
+  script:
+    - curl -o env-production  http://localhost:8500/v1/kv/sppd/env-production?raw
+    - docker run  --name migration-sppd --mount type=bind,source="$(pwd)"/env-production,target=/app/.env dockerhub.uns.ac.id:5000/sppd:$CI_COMMIT_SHORT_SHA php artisan migrate --no-interaction --force
+    - docker rm -f migration-sppd
+  when: manual
+  only:
+    - main
+  tags:
+    - docker
