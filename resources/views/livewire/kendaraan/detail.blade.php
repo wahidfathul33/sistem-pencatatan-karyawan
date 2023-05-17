@@ -80,13 +80,9 @@
                         </div>
                     </div>
                     <div class="row fv-row mb-7">
-                        <div class="col-6">
+                        <div class="col-12">
                             <label class="form-label fs-6 fw-bolder text-dark">Foto STNK</label>
                             <img src="{{ asset('images/stnk/'.$data->foto_stnk) }}" style="width: 100%">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fs-6 fw-bolder text-dark">Foto KTP</label>
-                            <img src="{{ asset('images/ktp/'.$data->foto_ktp) }}" style="width: 100%">
                         </div>
                     </div>
                 </div>

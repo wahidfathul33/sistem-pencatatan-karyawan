@@ -142,15 +142,6 @@
                                 <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-6">
-                                <label class="form-label fs-6 fw-bolder text-dark">Foto KTP</label>
-                                <input
-                                    class="form-control form-control-lg form-control-solid @error('foto_ktp') is-invalid @enderror"
-                                    type="file" wire:model="foto_ktp" />
-                                @error('foto_ktp')
-                                <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

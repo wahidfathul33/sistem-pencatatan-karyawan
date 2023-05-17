@@ -31,7 +31,6 @@ class Edit extends Component
     public $telp_pengguna;
     public $alamat_pengguna;
     public $foto_stnk;
-    public $foto_ktp;
     public $data;
 
     public function render()
@@ -56,8 +55,7 @@ class Edit extends Component
             'nik_pengguna' => 'required',
             'telp_pengguna' => 'required',
             'alamat_pengguna' => 'required',
-            'foto_stnk' => 'sometimes',
-            'foto_ktp' => 'sometimes'
+            'foto_stnk' => 'sometimes'
         ];
     }
 
@@ -94,12 +92,6 @@ class Edit extends Component
                 unset($data['foto_stnk']);
             }
 
-            if (!empty($data['foto_ktp'])){
-                $data['foto_ktp'] = $this->foto_ktp->store(md5(microtime()), 'ktp');
-            }else{
-                unset($data['foto_ktp']);
-            }
-
             $this->data->update($data);
         }catch (QueryException|\Exception $e){
             $this->errorAlert('Mengubah data Kendaraan gagal! '. $e->getMessage());
@@ -126,8 +118,7 @@ class Edit extends Component
             'nik_pengguna',
             'telp_pengguna',
             'alamat_pengguna',
-            'foto_stnk',
-            'foto_ktp'
+            'foto_stnk'
         ]);
     }
 

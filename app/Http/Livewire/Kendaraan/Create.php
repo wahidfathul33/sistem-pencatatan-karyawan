@@ -32,7 +32,6 @@ class Create extends Component
     public $telp_pengguna;
     public $alamat_pengguna;
     public $foto_stnk;
-    public $foto_ktp;
 
     public function render()
     {
@@ -54,8 +53,7 @@ class Create extends Component
         'nik_pengguna' => 'required',
         'telp_pengguna' => 'required',
         'alamat_pengguna' => 'required',
-        'foto_stnk' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-        'foto_ktp' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        'foto_stnk' => 'required|image|mimes:jpg,jpeg,png|max:2048'
     ];
 
     public function createKendaraan()
@@ -72,7 +70,6 @@ class Create extends Component
 
         try {
             $data['foto_stnk'] = $this->foto_stnk->store(md5(microtime()), 'stnk');
-            $data['foto_ktp'] = $this->foto_ktp->store(md5(microtime()), 'ktp');
 
             $kendaraan = Kendaraan::create($data);
             $kendaraan->update(['tgl_update_stnk' => now()]);
@@ -101,8 +98,7 @@ class Create extends Component
             'nik_pengguna',
             'telp_pengguna',
             'alamat_pengguna',
-            'foto_stnk',
-            'foto_ktp'
+            'foto_stnk'
         ]);
     }
 
