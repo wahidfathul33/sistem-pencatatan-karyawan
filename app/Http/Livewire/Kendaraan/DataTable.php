@@ -2,10 +2,12 @@
 
 namespace App\Http\Livewire\Kendaraan;
 
+use App\Exports\KendaraanExport;
 use App\Models\Desa;
 use App\Models\Kendaraan;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
 use PowerComponents\LivewirePowerGrid\Rules\{Rule, RuleActions};
 use PowerComponents\LivewirePowerGrid\Traits\ActionButton;
 use PowerComponents\LivewirePowerGrid\{Button, Column, Exportable, Footer, Header, PowerGrid, PowerGridComponent, PowerGridEloquent};
@@ -25,6 +27,7 @@ final class DataTable extends PowerGridComponent
             [
                 'updateKendaraanTable',
                 'bulkDelete',
+                'exportExcel',
             ]
         );
     }
@@ -43,6 +46,11 @@ final class DataTable extends PowerGridComponent
         }
 
         $this->emit('deleteKendaraan', ['kendaraan_id' => $this->checkboxValues]);
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new KendaraanExport(), 'kendaraan.xlsx');
     }
 
     public function setUp(): array
@@ -97,7 +105,11 @@ final class DataTable extends PowerGridComponent
                 Button::add('bulk-delete')
                     ->caption(__('Bulk delete'))
                     ->class('btn btn-md btn-secondary mb-5')
-                    ->emit('bulkDelete', [])
+                    ->emit('bulkDelete', []),
+                Button::add('export-excel')
+                    ->caption(__('Export Excel'))
+                    ->class('btn btn-md btn-success mb-5')
+                    ->emit('exportExcel', [])
             ];
         }
     }
